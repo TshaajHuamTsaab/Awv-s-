@@ -3,7 +3,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    background: url('bg.png') no-repeat center center fixed;
+    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -54,4 +55,38 @@ button:hover {
     font-size: 14px;
     color: #888;
     margin-top: 10px;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    max-width: 400px;
+}
+
+.button-group button {
+    flex: 1 1 40%;
+    min-width: 120px;
+    margin: 5px 0;
+}
+
+/* Keep your .logout-btn style for red color */
+.logout-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+    /* Remove width and height to use the image's original size */
 }

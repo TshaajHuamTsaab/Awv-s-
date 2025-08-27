@@ -1,4 +1,4 @@
-    const firebase = window.firebase;
+const firebase = window.firebase;
 document.addEventListener('DOMContentLoaded', function () {
     const firebaseConfig = {
         apiKey: "AIzaSyAn-xqPFj6TDd0kUspsQctfilRDO7cJdrE",
@@ -10,25 +10,39 @@ document.addEventListener('DOMContentLoaded', function () {
         measurementId: "G-SCF6303WH6"
     };
 
-    // Modular Firebase v9+ syntax
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    
-    document.getElementById('loginform').addEventListener('submit', function (event) {
-        event.preventDefault(); // prevent refresh
 
+    // Login handler
+    document.getElementById('loginform').addEventListener('submit', function (event) {
+        event.preventDefault();
         const email = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const message = document.getElementById('message');
-
         auth.signInWithEmailAndPassword(email, password)
             .then(() => {
-                // Show project content and hide login form
                 message.textContent = '✅ Login successful!';
                 message.style.color = "green";
-                // Redirect to your project page or show project content
                 window.location.href = 'project.html';
-            }) 
+            })
+            .catch((error) => {
+                message.textContent = "❌ " + error.message;
+                message.style.color = "red";
+            });
+    });
+
+    // Signup handler (move this inside DOMContentLoaded)
+    document.getElementById('signup').addEventListener('click', function () {
+        const email = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const message = document.getElementById('message');
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(() => {
+                message.textContent = '✅ Account created successfully!';
+                message.style.color = "green";
+                window.location.href = 'project.html';
+            })
             .catch((error) => {
                 message.textContent = "❌ " + error.message;
                 message.style.color = "red";

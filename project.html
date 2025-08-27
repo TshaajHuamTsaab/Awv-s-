@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>现实版水页增强版</title>
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:"Microsoft YaHei",sans-serif;}
+body{
+  background:url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif') center/cover no-repeat fixed;
+  position:relative;
+}
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:0;}
+#content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;padding:20px;}
+h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px rgba(0,0,0,0.7);}
+.line{margin:10px 0;font-size:1.5em;text-shadow:1px 1px 4px rgba(0,0,0,0.7);}
+#pageNumber{margin-top:10px;font-size:1em;color:#ccc;}
+#controls{position:absolute;top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:2;}
+button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius:8px;cursor:pointer;}
+#playBtn{background:green;color:white;}
+#stopBtn{background:red;color:white;}
+#stopBtn.paused{background:blue;}
+#increase,#decrease,#addPage,#addBook,#viewBook,#changeBg{background:#fff;color:#0b6fc2;}
+#bookList{position:absolute;bottom:10px;right:10px;display:flex;gap:8px;flex-wrap:wrap;z-index:2;}
+.bookIcon{width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid white;}
+/* 弹窗表单 */
+#formOverlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:3;}
+.formBox{background:#fff;padding:20px;border-radius:12px;min-width:300px;color:black;display:flex;flex-direction:column;gap:10px;}
+.formBox input, .formBox textarea{width:100%;padding:6px;font-size:1em;border-radius:4px;border:1px solid #ccc;}
+.formBox button{background:#0b6fc2;color:white;padding:8px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}
+/* 宇宙星星和雪 */
+#stars, #snow{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.star{position:absolute;background:white;border-radius:50%;opacity:0.8;}
+.snowflake{position:absolute;color:white;font-size:1em;user-select:none;}
+</style>
+</head>
+<body>
+<div class="overlay"></div>
+
+<div id="controls">
+  <button id="playBtn">Play</button>
+  <button id="stopBtn">Stop</button>
+  <button id="increase">A+</button>
+  <button id="decrease">A-</button>
+  <button id="addPage">添加页面</button>
+  <button id="addBook">添加书籍</button>
+  <button id="viewBook">查看书籍</button>
+  <button id="changeBg">切换背景</button>
+</div>
+
+<div id="content">
+  <h1 id="title"></h1>
+  <div id="lines"></div>
+  <div id="pageNumber"></div>
+</div>
+
+<!-- 去掉箭头导航 -->
+
+<div id="bookList"></div>
+
+<canvas id="stars"></canvas>
+<canvas id="snow"></canvas>
+
+<!-- 弹窗表单 -->
+<div id="formOverlay">
+  <div class="formBox" id="formBox">
+    <div id="formTitle"></div>
+    <input type="text" id="formInput1" placeholder="">
+    <input type="text" id="formInput2" placeholder="">
+    <input type="text" id="formInput3" placeholder="">
+    <textarea id="formTextarea" placeholder="" style="display:none;"></textarea>
+    <button id="formSubmit">提交</button>
+    <button id="formCancel">取消</button>
+  </div>
+</div>
+
+<script>
+// ---------- 页面与书籍数据 ----------
+let pages=[ {title:"社会处事",lines:["在社会混，最值钱的不是钱，而是信用。","给人留台阶，就是给自己留后路。","圈子再大，不真诚也白搭。","碰到麻烦，先沉住气，不要乱说话。","人脉不是认识多少人，而是谁愿意帮你。"],deletable:false}, {title:"为人处事",lines:["会做人，比会做事更重要。","千万别贪小便宜，最后吃大亏的还是自己。","人前说一句，背后别添一句。","恩情要记心里，矛盾要放身后。","小事情能看出一个人的真面目。"],deletable:false}, {title:"夫妻相处",lines:["婚姻不是比谁厉害，而是一起过日子。","吵架别过夜，冷战最伤感情。","站在对方角度想想，有些火气就下去了。","夸一句，比骂十句更管用。","苦日子能一起熬，甜日子才稳得住。"],deletable:false}, {title:"家庭和睦",lines:["家里不是讲输赢的地方，是讲温暖的地方。","一家人多说一句谢谢，气氛就不一样。","家务不是谁的事，谁有空谁做。","进家门，先放下情绪再开口。","家里和气，走出去才有底气。"],deletable:false}, {title:"教育孩子",lines:["孩子学你怎么做，不听你怎么说。","先教做人，再教读书。","太顺的孩子，长大容易吃大亏。","要孩子懂付出，而不是只会要东西。","鼓励一句，顶得过打击十句。"],deletable:false}, {title:"遵守家规",lines:["家没规矩，再有钱也留不住。","规矩不是束缚，是底线。","长辈立规矩，晚辈守规矩，家才安稳。","规矩讲清楚，孩子才知道方向。","家里守规矩，出去才不会丢人。"],deletable:false}, {title:"孝顺父母",lines:["父母在，家就在。","孝顺不是以后，是现在。","常回家吃饭，比转账更暖心。","父母的唠叨，是最便宜的关心。","陪伴才是真孝顺，不是光给钱。"],deletable:false}, {title:"邻里关系",lines:["远亲不如近邻，抬头不见低头见。","打个招呼，能化解一半尴尬。","别贪邻居小便宜，迟早坏了关系。","借点小忙，将来自己也能少麻烦。","不搬弄是非，是最好的邻里修养。"],deletable:false}, {title:"朋友交往",lines:["真朋友，不是喝酒时陪你，而是有事时帮你。","患难见真心，顺境看热闹。","朋友之间，守信用最重要。","拿别人短处开玩笑，迟早散伙。","跟靠谱的人在一起，自己也会变靠谱。"],deletable:false}, {title:"自我修养",lines:["心态放平，日子才顺。","说话要有分寸，别口无遮拦。","能忍一时之气，就能少十年烦恼。","依赖谁，都不如靠自己。","每天反省一点，日子就进步一点。"],deletable:false} ];
+  
+let books = [];
+let currentPage=0, fontSize=1.5, reading=false, lineIndex=0;
+
+const titleEl=document.getElementById("title");
+const linesEl=document.getElementById("lines");
+const pageNumberEl=document.getElementById("pageNumber");
+
+// 永久保存
+function saveData(){localStorage.setItem("customPages", JSON.stringify(pages));localStorage.setItem("customBooks", JSON.stringify(books));}
+function loadData(){
+  const savedPages = JSON.parse(localStorage.getItem("customPages"));
+  const savedBooks = JSON.parse(localStorage.getItem("customBooks"));
+  if(savedPages){ pages = savedPages; }
+  if(savedBooks){ books = savedBooks; renderBooks(); }
+}
+loadData();
+
+// 渲染
+function renderPage(){
+  titleEl.textContent = pages[currentPage].title;
+  linesEl.innerHTML = "";
+  pages[currentPage].lines.forEach(line => {
+    const div = document.createElement("div");
+    div.className = "line";
+    div.style.fontSize = fontSize + "em";
+    div.innerHTML = line.split("").map(c => `<span>${c}</span>`).join("");
+    linesEl.appendChild(div);
+  });
+  pageNumberEl.textContent = `第 ${currentPage+1} 页 / 共 ${pages.length} 页`;
+}
+renderPage();
+
+// 翻页函数
+function prevPage(){if(currentPage>0){currentPage--; renderPage(); stopReading();}}
+function nextPage(){if(currentPage<pages.length-1){currentPage++; renderPage(); stopReading();}}
+
+// 手指/鼠标滑动切换
+let startX=0, endX=0;
+document.addEventListener("touchstart",e=>{startX=e.touches[0].clientX;});
+document.addEventListener("touchend",e=>{
+  endX=e.changedTouches[0].clientX;
+  if(startX-endX>50){ nextPage(); } // 向左滑 → 下一页
+  else if(endX-startX>50){ prevPage(); } // 向右滑 → 上一页
+});
+// 鼠标拖动也能翻页
+let mouseDown=false;
+document.addEventListener("mousedown",e=>{mouseDown=true; startX=e.clientX;});
+document.addEventListener("mouseup",e=>{
+  if(!mouseDown)return;
+  mouseDown=false;
+  endX=e.clientX;
+  if(startX-endX>50){ nextPage(); }
+  else if(endX-startX>50){ prevPage(); }
+});
+
+// ---------- 字体 ----------
+document.getElementById("increase").onclick=()=>{fontSize+=0.2; renderPage();}
+document.getElementById("decrease").onclick=()=>{fontSize=Math.max(0.8,fontSize-0.2); renderPage();}
+
+// ---------- 朗读 ----------
+let synth = window.speechSynthesis;
+let utterance;
+function speakLine(){
+  if(!reading || lineIndex>=pages[currentPage].lines.length){stopReading();return;}
+  const lineDiv = linesEl.children[lineIndex];
+  const spans = Array.from(lineDiv.querySelectorAll("span"));
+  utterance = new SpeechSynthesisUtterance(pages[currentPage].lines[lineIndex]);
+  utterance.lang="zh-CN"; utterance.rate=0.9; utterance.pitch=1;
+  utterance.onboundary = (event)=>{
+    if(event.charIndex!==undefined){
+      spans.forEach(s=>s.style.color="white");
+      let idx=Math.min(event.charIndex, spans.length-1);
+      spans[idx].style.color="red";
+    }
+  }
+  utterance.onend = ()=>{spans.forEach(s=>s.style.color="white"); lineIndex++; speakLine();}
+  synth.speak(utterance);
+}
+function stopReading(){
+  reading=false; synth.cancel();
+  document.getElementById("stopBtn").classList.remove("paused");
+  Array.from(document.querySelectorAll(".line span")).forEach(s=>s.style.color="white");
+}
+document.getElementById("playBtn").onclick=()=>{if(!reading){reading=true; lineIndex=0; speakLine();}};
+document.getElementById("stopBtn").onclick=()=>{if(reading){synth.cancel();reading=false;document.getElementById("stopBtn").classList.add("paused");}else{reading=true;speakLine();document.getElementById("stopBtn").classList.remove("paused");}}
+
+// ---------- 添加页面/书籍 ----------
+const formOverlay=document.getElementById("formOverlay");
+const input1=document.getElementById("formInput1");
+const input2=document.getElementById("formInput2");
+const input3=document.getElementById("formInput3");
+const textarea=document.getElementById("formTextarea");
+const submitBtn=document.getElementById("formSubmit");
+const cancelBtn=document.getElementById("formCancel");
+const formTitle=document.getElementById("formTitle");
+const bookList=document.getElementById("bookList");
+let currentForm="";
+function showForm(type){
+  currentForm=type;
+  formOverlay.style.display="flex";
+  textarea.style.display="none"; input1.style.display="none"; input2.style.display="none"; input3.style.display="none";
+  if(type==="page"){formTitle.textContent="添加页面";input1.style.display="block";input1.placeholder="页面标题";textarea.style.display="block";textarea.placeholder="页面内容，每行或用逗号分隔";}
+  else if(type==="book"){formTitle.textContent="添加书籍";input1.style.display="block";input1.placeholder="书籍标题";input2.style.display="block";input2.placeholder="书籍链接";input3.style.display="block";input3.placeholder="封面URL";}
+  else if(type==="viewBook"){alert("书籍列表：\n"+books.map(b=>b.title).join("\n"));formOverlay.style.display="none";}
+}
+cancelBtn.onclick=()=>{formOverlay.style.display="none";}
+submitBtn.onclick=()=>{
+  if(currentForm==="page"){const title=input1.value.trim();const linesArr=textarea.value.split(/\n|,/).map(s=>s.trim()).filter(s=>s);if(title&&linesArr.length>0){pages.push({title,lines:linesArr,deletable:true});currentPage=pages.length-1;saveData();renderPage();alert("页面已添加！");}}
+  else if(currentForm==="book"){const title=input1.value.trim();const url=input2.value.trim();const img=input3.value.trim();if(title&&url&&img){books.push({title,url,img});saveData();renderBooks();alert("书籍已添加！");}}
+  formOverlay.style.display="none"; input1.value=""; input2.value=""; input3.value=""; textarea.value="";
+}
+function renderBooks(){bookList.innerHTML="";books.forEach(b=>{const img=document.createElement("img");img.src=b.img;img.title=b.title;img.className="bookIcon";img.onclick=()=>{window.open(b.url,"_blank");};bookList.appendChild(img);});}
+document.getElementById("addPage").onclick=()=>{showForm("page");}
+document.getElementById("addBook").onclick=()=>{showForm("book");}
+document.getElementById("viewBook").onclick=()=>{showForm("viewBook");}
+
+// ---------- 背景切换 ----------
+let bgIndex=0;
+const backgrounds=[
+  'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif',
+  'black', 'linear-gradient(to bottom,#001, #000)'
+];
+document.getElementById("changeBg").onclick=()=>{
+  bgIndex=(bgIndex+1)%backgrounds.length;
+  document.body.style.background=backgrounds[bgIndex];
+  if(bgIndex===1){initStars();}else{clearStars();}
+  if(bgIndex===2){initSnow();}else{clearSnow();}
+}
+
+// 星星
+const starCanvas=document.getElementById("stars");const starCtx=starCanvas.getContext("2d");let starsArray=[];
+function initStars(){starCanvas.width=window.innerWidth;starCanvas.height=window.innerHeight;starsArray=[];for(let i=0;i<150;i++){starsArray.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*2+1,opacity:Math.random()});}requestAnimationFrame(drawStars);}
+function drawStars(){starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);starsArray.forEach(s=>{starCtx.beginPath();starCtx.arc(s.x,s.y,s.r,0,2*Math.PI);starCtx.fillStyle=`rgba(255,255,255,${s.opacity})`;starCtx.fill();s.opacity+=(Math.random()-0.5)*0.05;if(s.opacity>1)s.opacity=1;if(s.opacity<0)s.opacity=0;});if(bgIndex===1)requestAnimationFrame(drawStars);}
+function clearStars(){starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);}
+
+// 雪
+const snowCanvas=document.getElementById("snow");const snowCtx=snowCanvas.getContext("2d");let snowArray=[];
+function initSnow(){snowCanvas.width=window.innerWidth;snowCanvas.height=window.innerHeight;snowArray=[];for(let i=0;i<200;i++){snowArray.push({x:Math.random()*snowCanvas.width,y:Math.random()*snowCanvas.height,r:Math.random()*3+1,speed:Math.random()*1+0.5});}requestAnimationFrame(drawSnow);}
+function drawSnow(){snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);snowArray.forEach(s=>{snowCtx.beginPath();snowCtx.arc(s.x,s.y,s.r,0,Math.PI*2);snowCtx.fillStyle="white";snowCtx.fill();s.y+=s.speed;if(s.y>snowCanvas.height)s.y=0;});if(bgIndex===2)requestAnimationFrame(drawSnow);}
+function clearSnow(){snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);}
+
+window.onresize=()=>{if(bgIndex===1)initStars();if(bgIndex===2)initSnow();}
+</script>
+</body>
+</html>
+
+

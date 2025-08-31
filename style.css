@@ -90,3 +90,7 @@ button:hover {
     margin-bottom: 20px;
     /* Remove width and height to use the image's original size */
 }
+
+h1, .line {
+  text-shadow: 2px 2px 5px black; /* 黑色阴影更明显 */
+}

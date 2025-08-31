@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>格局胜过金钱 · 动态版</title>
+<style>
+  html, body {
+    margin:0; padding:0;
+    width:100%; height:100%;
+    font-family:"Microsoft YaHei",sans-serif;
+    overflow:hidden;
+    background:#000;
+    display:flex; justify-content:center; align-items:center;
+    color:#fff;
+  }
+
+  /* 星点背景 */
+  body::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; width:100%; height:100%;
+    background: radial-gradient(#fff 1px, transparent 1px);
+    background-size: 3px 3px;
+    animation: moveStars 30s linear infinite;
+    opacity:0.3;
+  }
+  @keyframes moveStars {
+    0%{background-position:0 0;}
+    100%{background-position:1000px 1000px;}
+  }
+
+  .container {
+    position:relative;
+    max-width:700px; padding:40px;
+    background: rgba(0,0,0,0.6);
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(255,255,255,0.2);
+    text-align:center;
+  }
+
+  h1 {
+    font-size:2.8em; margin-bottom:20px;
+    color:#ffd700; text-shadow:2px 2px 10px rgba(0,0,0,0.7);
+  }
+
+  .line {
+    font-size:1.3em; line-height:2em; margin:10px 0;
+    opacity:0; transform: translateY(20px);
+    transition: all 0.8s ease;
+  }
+
+  .highlight { color:#ffb347; font-weight:bold; }
+
+  button {
+    margin-top:20px; padding:10px 20px;
+    border:none; border-radius:8px; background:#0b6fc2; color:white;
+    font-weight:bold; cursor:pointer; font-size:1em;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>格局胜过金钱</h1>
+  <div class="lines">
+    <div class="line">贫困最可怕的，不是物质的贫乏，</div>
+    <div class="line">而是陷入 <span class="highlight">贫困的思维和认知</span>。</div>
+    <div class="line">物质上穷只是穷一时，</div>
+    <div class="line">要是思维和认知上穷，那就穷三代了。</div>
+    <div class="line">要知道给下一代留的不是巨额财富，</div>
+    <div class="line">只要留 <span class="highlight">格局、眼界、思维</span> 就够了，</div>
+    <div class="line">因为这就是最宝贵的财富。</div>
+  </div>
+  <button id="readBtn">朗读文字</button>
+</div>
+
+<script>
+const lines = document.querySelectorAll('.line');
+
+// 逐行淡入动画
+lines.forEach((line, idx) => {
+  setTimeout(() => { line.style.opacity = 1; line.style.transform = 'translateY(0)'; }, idx*800);
+});
+
+// 朗读文字
+const btn = document.getElementById('readBtn');
+btn.onclick = () => {
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  lines.forEach(line => {
+    const utter = new SpeechSynthesisUtterance(line.textContent);
+    utter.lang = 'zh-CN';
+    utter.rate = 0.9;
+    synth.speak(utter);
+  });
+};
+</script>
+
+</body>
+</html>

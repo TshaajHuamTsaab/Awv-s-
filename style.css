@@ -107,4 +107,33 @@ h1, .line {
     background-color: darkblue; /* 悬停时深色 */
   }
 
+  .color-change {
+    animation: colorChange 1s infinite alternate;
+  }
+
+  .animated-paragraph {
+      font-size: 20px;
+      font-weight: bold;
+      opacity: 0;                  /* start invisible */
+      transform: translateX(-50px); /* start offset */
+      animation: slideFadeColor 3s forwards, colorFlicker 1.5s infinite alternate;
+    }
+
+    /* Slide in and fade in */
+    @keyframes slideFadeColor {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Color flicker */
+    @keyframes colorFlicker {
+      0% { color: #ff0000; }
+      25% { color: #ff9900; }
+      50% { color: #ffff00; }
+      75% { color: #00ff00; }
+      100% { color: #00ffff; }
+    }
+
   

@@ -42,7 +42,9 @@ button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius
   <button id="increase">A+</button>
   <button id="decrease">A-</button>
   <button id="changeBg">切换背景</button>
-  <button id="logout-btn">注销</button>
+  <button id="logout-btn" style="background-color:red; color:white; border:none; padding:10px 20px; border-radius:6px;">
+  注销
+</button>
 </div>
 
 <div id="content">
@@ -74,6 +76,21 @@ button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius
 <script>
 // ---------- 页面与书籍数据 ----------
 let pages = [
+  {
+  title: "格局胜过金钱",
+  lines: [
+    "贫困最可怕的，不是物质的贫乏，",
+    "而是陷入贫困的思维和认知。",
+    "",
+    "物质上穷只是穷一时，",
+    "要是思维和认知上穷，那就穷三代了。",
+    "",
+    "要知道给下一代留的不是巨额财富，",
+    "只要留 格局、眼界、思维 就够了，",
+    "因为这就是最宝贵的财富。"
+  ],
+  deletable: false
+  },
   {title:"社会处事",
     lines:[
       "在社会混，最值钱的不是钱，而是信用。",
@@ -659,36 +676,6 @@ function stopReading(){
 }
 document.getElementById("playBtn").onclick=()=>{if(!reading){reading=true; lineIndex=0; speakLine();}};
 document.getElementById("stopBtn").onclick=()=>{if(reading){synth.cancel();reading=false;document.getElementById("stopBtn").classList.add("paused");}else{reading=true;speakLine();document.getElementById("stopBtn").classList.remove("paused");}}
-
-// ---------- 添加页面/书籍 ----------
-const formOverlay=document.getElementById("formOverlay");
-const input1=document.getElementById("formInput1");
-const input2=document.getElementById("formInput2");
-const input3=document.getElementById("formInput3");
-const textarea=document.getElementById("formTextarea");
-const submitBtn=document.getElementById("formSubmit");
-const cancelBtn=document.getElementById("formCancel");
-const formTitle=document.getElementById("formTitle");
-const bookList=document.getElementById("bookList");
-let currentForm="";
-function showForm(type){
-  currentForm=type;
-  formOverlay.style.display="flex";
-  textarea.style.display="none"; input1.style.display="none"; input2.style.display="none"; input3.style.display="none";
-  if(type==="page"){formTitle.textContent="添加页面";input1.style.display="block";input1.placeholder="页面标题";textarea.style.display="block";textarea.placeholder="页面内容，每行或用逗号分隔";}
-  else if(type==="book"){formTitle.textContent="添加书籍";input1.style.display="block";input1.placeholder="书籍标题";input2.style.display="block";input2.placeholder="书籍链接";input3.style.display="block";input3.placeholder="封面URL";}
-  else if(type==="viewBook"){alert("书籍列表：\n"+books.map(b=>b.title).join("\n"));formOverlay.style.display="none";}
-}
-cancelBtn.onclick=()=>{formOverlay.style.display="none";}
-submitBtn.onclick=()=>{
-  if(currentForm==="page"){const title=input1.value.trim();const linesArr=textarea.value.split(/\n|,/).map(s=>s.trim()).filter(s=>s);if(title&&linesArr.length>0){pages.push({title,lines:linesArr,deletable:true});currentPage=pages.length-1;saveData();renderPage();alert("页面已添加！");}}
-  else if(currentForm==="book"){const title=input1.value.trim();const url=input2.value.trim();const img=input3.value.trim();if(title&&url&&img){books.push({title,url,img});saveData();renderBooks();alert("书籍已添加！");}}
-  formOverlay.style.display="none"; input1.value=""; input2.value=""; input3.value=""; textarea.value="";
-}
-function renderBooks(){bookList.innerHTML="";books.forEach(b=>{const img=document.createElement("img");img.src=b.img;img.title=b.title;img.className="bookIcon";img.onclick=()=>{window.open(b.url,"_blank");};bookList.appendChild(img);});}
-document.getElementById("addPage").onclick=()=>{showForm("page");}
-document.getElementById("addBook").onclick=()=>{showForm("book");}
-document.getElementById("viewBook").onclick=()=>{showForm("viewBook");}
 
 // ---------- 背景切换 ----------
 let bgIndex=0;

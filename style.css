@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: url('bg.png') no-repeat center center fixed;
+    background: url("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExejQzcHlzNTA1cngycno3OHNpZWFwNnI4b2FoODZsMHllZ2ljNDg2OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xoe0tAibjHZc5EV2rm/giphy.gif") no-repeat center center fixed;
     background-size: cover;
     display: flex;
     justify-content: center;

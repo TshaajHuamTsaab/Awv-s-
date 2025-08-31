@@ -94,3 +94,17 @@ button:hover {
 h1, .line {
   text-shadow: 2px 2px 5px black; /* 黑色阴影更明显 */
 }
+
+ button[type="submit"] {
+    background-color: blue;   /* 背景颜色 */
+    color: white;             /* 字体颜色 */
+    border: none;             /* 去掉边框 */
+    padding: 10px 20px;       /* 内边距 */
+    border-radius: 6px;       /* 圆角 */
+    cursor: pointer;          /* 鼠标手型 */
+  }
+  button[type="submit"]:hover {
+    background-color: darkblue; /* 悬停时深色 */
+  }
+
+  

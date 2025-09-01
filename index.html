@@ -1,36 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="projectContent"></div>
-        <script src="project.js"></script>
-    <div class="container">
-        <img src="logo.png" alt="Logo" class="logo">
-        <form id="loginform">
-            <h1>欢迎您加入Awvtsaab's金书</h1>
-            <input type="email" id="username" placeholder="Email" required>
-            <br>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <button id="createBtn" type="button">Create Account</button>
-            <p>填写以上邮箱和密码后点击创建即可</p>
-            <bar>
-            <p>穷就不该恐惧和懒惰，聚沙成塔，加油！</p>
-        </form>
-        <div id="message"></div>
-    </div>
 
-    <!-- Firebase scripts (keep if you plan to use Firebase) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    
-    <!-- Your separate JS file -->
-    <script src="login.js"></script>
+<div class="container">
+    <img src="logo.png" alt="Logo" class="logo">
+    <form id="loginform">
+        <h1>欢迎您加入Awvtsaab's金书</h1>
+        <input type="email" id="username" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+        <button id="createBtn" type="button">Create Account</button>
+        <p>填写以上邮箱和密码后点击创建即可</p>
+        <bar></bar>
+        <p>穷就不该恐惧和懒惰，聚沙成塔，加油！</p>
+    </form>
+    <div id="message"></div>
+</div>
+
+<!-- Firebase scripts (optional if using Firebase) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<!-- Your separate JS file -->
+<script src="login.js"></script>
 </body>
 </html>

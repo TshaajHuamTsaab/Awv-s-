@@ -1,139 +1,126 @@
-/* Page background */
+/* Full-page GIF background */
 body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: url("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExejQzcHlzNTA1cngycno3OHNpZWFwNnI4b2FoODZsMHllZ2ljNDg2OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xoe0tAibjHZc5EV2rm/giphy.gif") no-repeat center center fixed;
-    background-size: cover;
+    background: url("https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjZzdWRndHMzcnZlYTNscTBjbDJ5cWNubTZ0dDBkdXZhdHNwZWs2ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5Br5B6yzz3sFclMZoR/giphy.gif") 
+                no-repeat center center fixed;
+    background-size: contain;
+    animation: zoomBG 20s infinite alternate;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-/* Login container */
+/* Background zoom animation */
+@keyframes zoomBG {
+    0% { background-size: 100% 100%; }
+    100% { background-size: 110% 110%; }
+}
+
+/* Mirror/glass login box */
 .container {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 300px;
-}
-
-/* Inputs */
-input {
-    width: 90%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    transition: border 0.3s;
-}
-input:focus {
-    border-color: #74ebd5;
-}
-
-/* Button */
-button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    background-color: #4CAF50;
+    width: 350px;
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px) brightness(1.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    text-align: center;
     color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: backgrorund 0.3s;
-}
-button:hover {
-    background-color: #45a049;
 }
 
-/* Message text */
-#message {
-    font-size: 14px;
-    color: #888;
-    margin-top: 10px;
-}
-
-.button-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
+/* Logo */
+.logo {
+    width: 100px;
     margin-bottom: 20px;
-    max-width: 400px;
 }
 
-.button-group button {
-    flex: 1 1 40%;
-    min-width: 120px;
-    margin: 5px 0;
+/* Animated glowing heading */
+.container h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff00ff, 0 0 15px #ff00ff, 0 0 20px #ff00ff;
+    animation: glowText 2s ease-in-out infinite alternate;
 }
 
-/* Keep your .logout-btn style for red color */
-.logout-btn {
-    background-color: red;
+@keyframes glowText {
+    0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #ff00ff, 0 0 15px #ff00ff, 0 0 20px #ff00ff;
+        color: #fff;
+    }
+    50% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff;
+        color: #ffccff;
+    }
+    100% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #ff00ff, 0 0 15px #ff00ff, 0 0 20px #ff00ff;
+        color: #fff;
+    }
+}
+
+/* Form input fields */
+form input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.2);
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
     font-size: 16px;
 }
 
-.logo {
+/* Form buttons */
+form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.3);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form button:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* Paragraphs below form with dark/light animation */
+.container p {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #fff;
+    animation: pulseText 3s ease-in-out infinite alternate;
+}
+
+/* Dark/light pulsing animation */
+@keyframes pulseText {
+    0% {
+        color: rgba(255, 255, 255, 0.7);
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    50% {
+        color: rgba(200, 200, 200, 0.9);
+        text-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+    100% {
+        color: rgba(150, 150, 150, 0.8);
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+}
+
+/* Optional bar element */
+bar {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
-    /* Remove width and height to use the image's original size */
+    height: 2px;
+    width: 100%;
+    margin: 10px 0;
+    background: rgba(255,255,255,0.4);
 }
-
-h1, .line {
-  text-shadow: 2px 2px 5px black; /* 黑色阴影更明显 */
-}
-
- button[type="submit"] {
-    background-color: blue;   /* 背景颜色 */
-    color: white;             /* 字体颜色 */
-    border: none;             /* 去掉边框 */
-    padding: 10px 20px;       /* 内边距 */
-    border-radius: 6px;       /* 圆角 */
-    cursor: pointer;          /* 鼠标手型 */
-  }
-  button[type="submit"]:hover {
-    background-color: darkblue; /* 悬停时深色 */
-  }
-
-  .color-change {
-    animation: colorChange 1s infinite alternate;
-  }
-
-  .animated-paragraph {
-      font-size: 20px;
-      font-weight: bold;
-      opacity: 0;                  /* start invisible */
-      transform: translateX(-50px); /* start offset */
-      animation: slideFadeColor 3s forwards, colorFlicker 1.5s infinite alternate;
-    }
-
-    /* Slide in and fade in */
-    @keyframes slideFadeColor {
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Color flicker */
-    @keyframes colorFlicker {
-      0% { color: #ff0000; }
-      25% { color: #ff9900; }
-      50% { color: #ffff00; }
-      75% { color: #00ff00; }
-      100% { color: #00ffff; }
-    }
-
-  

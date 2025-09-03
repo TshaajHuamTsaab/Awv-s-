@@ -1,95 +1,110 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>现实版水页增强版</title>
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:"Microsoft YaHei",sans-serif;}
-body{
-  background:url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif') center/cover no-repeat fixed;
-  position:relative;
-}
-.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:0;}
-#content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;padding:20px;}
-h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px rgba(0,0,0,0.7);}
-.line{margin:10px 0;font-size:1.5em;text-shadow:1px 1px 4px rgba(0,0,0,0.7);}
-#pageNumber{margin-top:10px;font-size:1em;color:#ccc;}
-#controls{position:absolute;top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:2;}
-button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius:8px;cursor:pointer;}
-#playBtn{background:green;color:white;}
-#stopBtn{background:red;color:white;}
-#stopBtn.paused{background:blue;}
-#increase,#decrease,#addPage,#addBook,#viewBook,#changeBg{background:#fff;color:#0b6fc2;}
-#bookList{position:absolute;bottom:10px;right:10px;display:flex;gap:8px;flex-wrap:wrap;z-index:2;}
-.bookIcon{width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid white;}
-/* 弹窗表单 */
-#formOverlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:3;}
-.formBox{background:#fff;padding:20px;border-radius:12px;min-width:300px;color:black;display:flex;flex-direction:column;gap:10px;}
-.formBox input, .formBox textarea{width:100%;padding:6px;font-size:1em;border-radius:4px;border:1px solid #ccc;}
-.formBox button{background:#0b6fc2;color:white;padding:8px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}
-/* 宇宙星星和雪 */
-#stars, #snow{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
-.star{position:absolute;background:white;border-radius:50%;opacity:0.8;}
-.snowflake{position:absolute;color:white;font-size:1em;user-select:none;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:"Microsoft YaHei",sans-serif;}
+  body{
+    background:url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif') center/cover no-repeat fixed;
+    position:relative;
+  }
+
+  /* layering: overlay (0) < stars/snow (1) < content (2) < controls/search (3) */
+  .overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:0;}
+
+  #content{
+    position:relative;z-index:2;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:white;padding:20px;
+  }
+  h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px rgba(0,0,0,0.7);}
+  .line{margin:10px 0;font-size:1.5em;text-shadow:1px 1px 4px rgba(0,0,0,0.7);}
+  #pageNumber{margin-top:10px;font-size:1em;color:#ccc;}
+
+  #controls{
+    position:absolute;top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:3;width:100%;
+  }
+  button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius:8px;cursor:pointer;}
+  #playBtn{background:green;color:white;}
+  #stopBtn{background:red;color:white;}
+  #stopBtn.paused{background:blue;}
+  #increase,#decrease,#changeBg{background:#fff;color:#0b6fc2;}
+
+  /* Page-number search */
+  #search-bar{position:absolute;top:70px;width:100%;text-align:center;z-index:3;}
+  #search-input{padding:6px 12px;border-radius:6px;border:1px solid #ccc;width:120px;}
+  #search-btn{padding:6px 12px;border-radius:6px;border:none;background:#0b6fc2;color:white;font-weight:bold;cursor:pointer;}
+
+  /* canvases for effects */
+  #stars,#snow{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
 </style>
 </head>
-<body>    
-<div class="overlay"></div>
+<body>
+
+<!-- Controls -->
 <div id="controls">
   <button id="playBtn">Play</button>
   <button id="stopBtn">Stop</button>
   <button id="increase">A+</button>
   <button id="decrease">A-</button>
   <button id="changeBg">切换背景</button>
-  <button id="logout-btn" style="background-color:red; color:white; border:none; padding:10px 20px; border-radius:6px;">
-  注销
-</button>
+  <button id="logout-btn" style="background-color:red;color:white;border:none;padding:10px 20px;border-radius:6px;">注销</button>
 </div>
 
+<!-- Page-number search -->
+<div id="search-bar">
+  <input type="number" id="search-input" placeholder="输入页码..." min="1"/>
+  <button id="search-btn">跳转</button>
+</div>
+
+<!-- Content -->
 <div id="content">
   <h1 id="title"></h1>
   <div id="lines"></div>
   <div id="pageNumber"></div>
 </div>
 
-<!-- 去掉箭头导航 -->
-
-<div id="bookList"></div>
-
+<!-- Effects above overlay -->
 <canvas id="stars"></canvas>
 <canvas id="snow"></canvas>
-
-<!-- 弹窗表单 -->
-<div id="formOverlay">
-  <div class="formBox" id="formBox">
-    <div id="formTitle"></div>
-    <input type="text" id="formInput1" placeholder="">
-    <input type="text" id="formInput2" placeholder="">
-    <input type="text" id="formInput3" placeholder="">
-    <textarea id="formTextarea" placeholder="" style="display:none;"></textarea>
-    <button id="formSubmit">提交</button>
-    <button id="formCancel">取消</button>
-  </div>
-</div>
+<div class="overlay"></div>
 
 <script>
-// ---------- 页面与书籍数据 ----------
+/* ---------------- Data ---------------- */
 let pages = [
   {
-  title: "格局胜过金钱",
-  lines: [
-    "贫困最可怕的，不是物质的贫乏，",
-    "而是陷入贫困的思维和认知。",
-    "",
-    "物质上穷只是穷一时，",
-    "要是思维和认知上穷，那就穷三代了。",
-    "",
-    "要知道给下一代留的不是巨额财富，",
-    "只要留 格局、眼界、思维 就够了，",
-    "因为这就是最宝贵的财富。"
-  ],
-  deletable: false
+    title: "格局胜过金钱",
+    lines: [
+      "贫困最可怕的，不是物质的贫乏，",
+      "而是陷入贫困的思维和认知。",
+      "",
+      "物质上穷只是穷一时，",
+      "要是思维和认知上穷，那就穷三代了。",
+      "",
+      "要知道给下一代留的不是巨额财富，",
+      "只要留 格局、眼界、思维 就够了，",
+      "因为这就是最宝贵的财富。"
+    ],
+  },
+  {
+    title: "学习的重要性",
+    lines: [
+      "知识改变命运，",
+      "学习开拓眼界，",
+      "坚持每天进步一点点，",
+      "长久累积就是质的飞跃。"
+    ]
+  },
+  {
+    title: "坚持的力量",
+    lines: [
+      "生活不是一场短跑，",
+      "而是一场需要耐力的马拉松。",
+      "只有坚持到最后的人，",
+      "才能看到真正的风景。"
+    ]
   },
   {title:"社会处事",
     lines:[
@@ -747,83 +762,101 @@ let pages = [
 }
 ];
 
-  
-let books = [];
-let currentPage=0, fontSize=1.5, reading=false, lineIndex=0;
+let currentPage = 0;
+let fontSize = 1.5;
+let reading = false;
+let lineIndex = 0;
 
-const titleEl=document.getElementById("title");
-const linesEl=document.getElementById("lines");
-const pageNumberEl=document.getElementById("pageNumber");
+const titleEl = document.getElementById("title");
+const linesEl = document.getElementById("lines");
+const pageNumberEl = document.getElementById("pageNumber");
 
-// 永久保存
-function saveData(){localStorage.setItem("customPages", JSON.stringify(pages));localStorage.setItem("customBooks", JSON.stringify(books));}
-function loadData(){
-  const savedPages = JSON.parse(localStorage.getItem("customPages"));
-  const savedBooks = JSON.parse(localStorage.getItem("customBooks"));
-  if(savedPages){ pages = savedPages; }
-  if(savedBooks){ books = savedBooks; renderBooks(); }
-}
-loadData();
-
-// 渲染
+/* ---------------- Render ---------------- */
 function renderPage(){
-  titleEl.textContent = pages[currentPage].title;
+  if (currentPage < 0) currentPage = 0;
+  if (currentPage >= pages.length) currentPage = pages.length - 1;
+
+  const page = pages[currentPage];
+  titleEl.textContent = page.title;
   linesEl.innerHTML = "";
-  pages[currentPage].lines.forEach(line => {
+
+  page.lines.forEach(line=>{
     const div = document.createElement("div");
     div.className = "line";
     div.style.fontSize = fontSize + "em";
+    // keep per-char spans to support TTS highlighting
     div.innerHTML = line.split("").map(c => `<span>${c}</span>`).join("");
     linesEl.appendChild(div);
   });
+
   pageNumberEl.textContent = `第 ${currentPage+1} 页 / 共 ${pages.length} 页`;
 }
 renderPage();
 
-// 翻页函数
-function prevPage(){if(currentPage>0){currentPage--; renderPage(); stopReading();}}
-function nextPage(){if(currentPage<pages.length-1){currentPage++; renderPage(); stopReading();}}
+/* ---------------- Paging (swipe & mouse drag) ---------------- */
+function prevPage(){ if(currentPage>0){ currentPage--; renderPage(); stopReading(); } }
+function nextPage(){ if(currentPage<pages.length-1){ currentPage++; renderPage(); stopReading(); } }
 
-// 手指/鼠标滑动切换
-let startX=0, endX=0;
-document.addEventListener("touchstart",e=>{startX=e.touches[0].clientX;});
+let startX=0, endX=0, mouseDown=false;
+document.addEventListener("touchstart",e=>{ startX = e.touches[0].clientX; });
 document.addEventListener("touchend",e=>{
-  endX=e.changedTouches[0].clientX;
-  if(startX-endX>50){ nextPage(); } // 向左滑 → 下一页
-  else if(endX-startX>50){ prevPage(); } // 向右滑 → 上一页
+  endX = e.changedTouches[0].clientX;
+  if (startX - endX > 50) nextPage();
+  else if (endX - startX > 50) prevPage();
 });
-// 鼠标拖动也能翻页
-let mouseDown=false;
-document.addEventListener("mousedown",e=>{mouseDown=true; startX=e.clientX;});
+document.addEventListener("mousedown",e=>{ mouseDown=true; startX=e.clientX; });
 document.addEventListener("mouseup",e=>{
-  if(!mouseDown)return;
-  mouseDown=false;
-  endX=e.clientX;
-  if(startX-endX>50){ nextPage(); }
-  else if(endX-startX>50){ prevPage(); }
+  if(!mouseDown) return;
+  mouseDown=false; endX=e.clientX;
+  if (startX - endX > 50) nextPage();
+  else if (endX - startX > 50) prevPage();
 });
 
-// ---------- 字体 ----------
-document.getElementById("increase").onclick=()=>{fontSize+=0.2; renderPage();}
-document.getElementById("decrease").onclick=()=>{fontSize=Math.max(0.8,fontSize-0.2); renderPage();}
+/* ---------------- Page-number search ---------------- */
+const searchInput = document.getElementById("search-input");
+document.getElementById("search-btn").onclick = ()=>{
+  const n = parseInt(searchInput.value, 10);
+  if (!isNaN(n) && n>=1 && n<=pages.length){
+    currentPage = n-1;
+    renderPage();
+    stopReading();
+  } else {
+    alert("❌ 没有这个页码");
+  }
+};
+// Enter key to jump
+searchInput.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter") document.getElementById("search-btn").click();
+});
 
-// ---------- 朗读 ----------
+/* ---------------- Font size ---------------- */
+document.getElementById("increase").onclick = ()=>{ fontSize += 0.2; renderPage(); };
+document.getElementById("decrease").onclick = ()=>{ fontSize = Math.max(0.8, fontSize-0.2); renderPage(); };
+
+/* ---------------- TTS ---------------- */
 let synth = window.speechSynthesis;
 let utterance;
 function speakLine(){
-  if(!reading || lineIndex>=pages[currentPage].lines.length){stopReading();return;}
+  if(!reading || lineIndex >= pages[currentPage].lines.length){ stopReading(); return; }
+
   const lineDiv = linesEl.children[lineIndex];
   const spans = Array.from(lineDiv.querySelectorAll("span"));
   utterance = new SpeechSynthesisUtterance(pages[currentPage].lines[lineIndex]);
-  utterance.lang="zh-CN"; utterance.rate=0.9; utterance.pitch=1;
-  utterance.onboundary = (event)=>{
-    if(event.charIndex!==undefined){
+  utterance.lang = "zh-CN";
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.onboundary = (ev)=>{
+    if (ev.charIndex!==undefined){
       spans.forEach(s=>s.style.color="white");
-      let idx=Math.min(event.charIndex, spans.length-1);
-      spans[idx].style.color="red";
+      const idx = Math.min(ev.charIndex, spans.length-1);
+      spans[idx].style.color = "red";
     }
-  }
-  utterance.onend = ()=>{spans.forEach(s=>s.style.color="white"); lineIndex++; speakLine();}
+  };
+  utterance.onend = ()=>{
+    spans.forEach(s=>s.style.color="white");
+    lineIndex++;
+    speakLine();
+  };
   synth.speak(utterance);
 }
 function stopReading(){
@@ -831,42 +864,92 @@ function stopReading(){
   document.getElementById("stopBtn").classList.remove("paused");
   Array.from(document.querySelectorAll(".line span")).forEach(s=>s.style.color="white");
 }
-document.getElementById("playBtn").onclick=()=>{if(!reading){reading=true; lineIndex=0; speakLine();}};
-document.getElementById("stopBtn").onclick=()=>{if(reading){synth.cancel();reading=false;document.getElementById("stopBtn").classList.add("paused");}else{reading=true;speakLine();document.getElementById("stopBtn").classList.remove("paused");}}
-
-// ---------- 背景切换 ----------
-let bgIndex=0;
-const backgrounds=[
-  'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif',
-  'black', 'linear-gradient(to bottom,#001, #000)'
-];
-document.getElementById("changeBg").onclick=()=>{
-  bgIndex=(bgIndex+1)%backgrounds.length;
-  document.body.style.background=backgrounds[bgIndex];
-  if(bgIndex===1){initStars();}else{clearStars();}
-  if(bgIndex===2){initSnow();}else{clearSnow();}
-}
-
-// 星星
-const starCanvas=document.getElementById("stars");const starCtx=starCanvas.getContext("2d");let starsArray=[];
-function initStars(){starCanvas.width=window.innerWidth;starCanvas.height=window.innerHeight;starsArray=[];for(let i=0;i<150;i++){starsArray.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*2+1,opacity:Math.random()});}requestAnimationFrame(drawStars);}
-function drawStars(){starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);starsArray.forEach(s=>{starCtx.beginPath();starCtx.arc(s.x,s.y,s.r,0,2*Math.PI);starCtx.fillStyle=`rgba(255,255,255,${s.opacity})`;starCtx.fill();s.opacity+=(Math.random()-0.5)*0.05;if(s.opacity>1)s.opacity=1;if(s.opacity<0)s.opacity=0;});if(bgIndex===1)requestAnimationFrame(drawStars);}
-function clearStars(){starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);}
-
-// 雪
-const snowCanvas=document.getElementById("snow");const snowCtx=snowCanvas.getContext("2d");let snowArray=[];
-function initSnow(){snowCanvas.width=window.innerWidth;snowCanvas.height=window.innerHeight;snowArray=[];for(let i=0;i<200;i++){snowArray.push({x:Math.random()*snowCanvas.width,y:Math.random()*snowCanvas.height,r:Math.random()*3+1,speed:Math.random()*1+0.5});}requestAnimationFrame(drawSnow);}
-function drawSnow(){snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);snowArray.forEach(s=>{snowCtx.beginPath();snowCtx.arc(s.x,s.y,s.r,0,Math.PI*2);snowCtx.fillStyle="white";snowCtx.fill();s.y+=s.speed;if(s.y>snowCanvas.height)s.y=0;});if(bgIndex===2)requestAnimationFrame(drawSnow);}
-function clearSnow(){snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);}
-
-window.onresize=()=>{if(bgIndex===1)initStars();if(bgIndex===2)initSnow();}
-</script>
-<script>
-document.getElementById('logout-btn').onclick = function() {
-    window.location.href = "index.html";
+document.getElementById("playBtn").onclick = ()=>{ if(!reading){ reading=true; lineIndex=0; speakLine(); } };
+document.getElementById("stopBtn").onclick = ()=>{
+  if(reading){ synth.cancel(); reading=false; document.getElementById("stopBtn").classList.add("paused"); }
+  else { reading=true; speakLine(); document.getElementById("stopBtn").classList.remove("paused"); }
 };
+
+/* ---------------- Background switch + effects ---------------- */
+let bgIndex = 0;
+const backgrounds = [
+  'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif', // 0: GIF (no effects)
+  'black',                                  // 1: stars
+  'linear-gradient(to bottom,#001,#000)'    // 2: snow
+];
+
+document.getElementById("changeBg").onclick = ()=>{
+  bgIndex = (bgIndex + 1) % backgrounds.length;
+  document.body.style.background = backgrounds[bgIndex];
+
+  if (bgIndex === 1){ initStars(); clearSnow(); }
+  else if (bgIndex === 2){ initSnow(); clearStars(); }
+  else { clearStars(); clearSnow(); }
+};
+
+/* Stars */
+const starCanvas = document.getElementById("stars");
+const starCtx = starCanvas.getContext("2d");
+let starsArray = [];
+function initStars(){
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  starsArray = [];
+  for(let i=0;i<150;i++){
+    starsArray.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*2+1,opacity:Math.random()});
+  }
+  requestAnimationFrame(drawStars);
+}
+function drawStars(){
+  starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);
+  starsArray.forEach(s=>{
+    starCtx.beginPath();
+    starCtx.arc(s.x,s.y,s.r,0,2*Math.PI);
+    starCtx.fillStyle = `rgba(255,255,255,${s.opacity})`;
+    starCtx.fill();
+    s.opacity += (Math.random()-0.5)*0.05;
+    if(s.opacity>1) s.opacity=1;
+    if(s.opacity<0) s.opacity=0;
+  });
+  if (bgIndex === 1) requestAnimationFrame(drawStars);
+}
+function clearStars(){ starCtx.clearRect(0,0,starCanvas.width,starCanvas.height); }
+
+/* Snow */
+const snowCanvas = document.getElementById("snow");
+const snowCtx = snowCanvas.getContext("2d");
+let snowArray = [];
+function initSnow(){
+  snowCanvas.width = window.innerWidth;
+  snowCanvas.height = window.innerHeight;
+  snowArray = [];
+  for(let i=0;i<200;i++){
+    snowArray.push({x:Math.random()*snowCanvas.width,y:Math.random()*snowCanvas.height,r:Math.random()*3+1,speed:Math.random()*1+0.5});
+  }
+  requestAnimationFrame(drawSnow);
+}
+function drawSnow(){
+  snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);
+  snowArray.forEach(s=>{
+    snowCtx.beginPath();
+    snowCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    snowCtx.fillStyle="white";
+    snowCtx.fill();
+    s.y += s.speed;
+    if(s.y>snowCanvas.height) s.y = 0;
+  });
+  if (bgIndex === 2) requestAnimationFrame(drawSnow);
+}
+function clearSnow(){ snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height); }
+
+/* Resize */
+window.onresize = ()=>{
+  if (bgIndex===1) initStars();
+  if (bgIndex===2) initSnow();
+};
+
+/* Logout */
+document.getElementById('logout-btn').onclick = ()=>{ window.location.href = "index.html"; };
 </script>
 </body>
 </html>
-
-

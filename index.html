@@ -1,34 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Hacker Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:'Share Tech Mono', monospace;}
+    body {
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:black;
+      color:white;
+      overflow:hidden;
+    }
+
+    canvas#matrix {
+      position:fixed;
+      top:0;left:0;
+      width:100%;height:100%;
+      z-index:-1;
+    }
+
+    .container {
+      background:rgba(0,0,0,0.85);
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 0 20px rgba(0,255,100,0.5);
+      text-align:center;
+      width:280px;
+    }
+
+    .logo {margin-bottom:15px;}
+    .logo img {width:70px;}
+
+    h2 {margin-bottom:15px;color:#0f0;}
+
+    input, select {
+      width:100%;
+      padding:10px;
+      margin:8px 0;
+      border:none;
+      border-radius:6px;
+      outline:none;
+      background:#111;
+      color:#0f0;
+    }
+    input::placeholder {color:#555;}
+
+    .btn {
+      width:100%;
+      padding:10px;
+      margin:8px 0;
+      font-size:14px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:bold;
+      text-transform:uppercase;
+    }
+
+    .btn-login {
+      background:#111;
+      color:white;
+      border:1px solid white;
+      box-shadow:0 0 10px white;
+      transition:0.3s;
+    }
+    .btn-login:hover {background:white;color:black;box-shadow:0 0 20px white;}
+
+    .btn-create {
+      background:#111;
+      color:red;
+      border:1px solid red;
+      box-shadow:0 0 10px red;
+      transition:0.3s;
+    }
+    .btn-create:hover {background:red;color:white;box-shadow:0 0 20px red;}
+
+    #createForm {display:none;margin-top:20px;}
+  </style>
 </head>
 <body>
+  <canvas id="matrix"></canvas>
 
-<div class="container">
-    <img src="logo.png" alt="Logo" class="logo">
-    <form id="loginform">
-        <h1>欢迎您加入Awvtsaab's金书</h1>
-        <input type="email" id="username" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-        <button id="createBtn" type="button">Create Account</button>
-        <p>填写以上邮箱和密码后点击创建即可</p>
-        <bar></bar>
-        <p>穷就不该恐惧和懒惰，聚沙成塔，加油！</p>
-    </form>
-    <div id="message"></div>
-</div>
+  <div class="container">
+    <div class="logo">
+      <img src="https://i.postimg.cc/DwzYYTWD/logo.webp" alt="Logo">
+    </div>
 
-<!-- Firebase scripts (optional if using Firebase) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button class="btn btn-login" onclick="login()">登录</button>
 
-<!-- Your separate JS file -->
-<script src="login.js"></script>
+    <button class="btn btn-create" onclick="toggleCreate()">创建新用户</button>
+
+    <div id="createForm">
+      <h2>新用户填写以下信息</h2>
+      <input type="text" id="signupName" placeholder="姓名">
+      <input type="email" id="signupEmail" placeholder="邮箱">
+      <input type="password" id="signupPassword" placeholder="密码">
+      <input type="number" id="signupAge" placeholder="年龄">
+      <select id="signupGender">
+        <option value="" disabled selected>请选择性别</option>
+        <option value="male">男</option>
+        <option value="female">女</option>
+        <option value="other">其他</option>
+      </select>
+      <input type="tel" id="signupPhone" placeholder="手机号码">
+      <button class="btn btn-create" onclick="confirmSignup()">确认</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ✅ Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCIVYd8e5vBeGRz-H12Nj9hd5dyqnZCDI",
+      authDomain: "guardiangate-7xkgi.firebaseapp.com",
+      projectId: "guardiangate-7xkgi",
+      storageBucket: "guardiangate-7xkgi.firebasestorage.app",
+      messagingSenderId: "133766737758",
+      appId: "1:133766737758:web:38de135254fef4664769cf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Toggle signup form
+    function toggleCreate() {
+      const form = document.getElementById("createForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    // Confirm before creating account
+    function confirmSignup() {
+      const name = document.getElementById("signupName").value;
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      const age = document.getElementById("signupAge").value;
+      const gender = document.getElementById("signupGender").value;
+      const phone = document.getElementById("signupPhone").value;
+
+      if (!name || !email || !password || !age || !gender || !phone) {
+        alert("⚠️ Please fill all fields!");
+        return;
+      }
+
+      const confirmText =
+        "Please confirm your details:\n\n" +
+        "👤 Name: " + name + "\n" +
+        "📧 Email: " + email + "\n" +
+        "🔑 Password: " + "*".repeat(password.length) + "\n" +
+        "🎂 Age: " + age + "\n" +
+        "⚧ Gender: " + gender + "\n" +
+        "📱 Phone: " + phone + "\n\n" +
+        "Do you want to create this account?";
+
+      if (confirm(confirmText)) {
+        signup(name, email, password, age, gender, phone);
+      }
+    }
+
+    // Signup with Firebase
+    async function signup(name, email, password, age, gender, phone) {
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        await db.collection("users").doc(user.uid).set({
+          name, email, age, gender, phone,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert("✅ Account created successfully!");
+        window.location.href = "home.html"; // redirect
+      } catch (error) {
+        alert("❌ " + error.message);
+      }
+    }
+
+    // Login with Firebase
+    async function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        alert("✅ Login successful!");
+        window.location.href = "home.html"; // redirect
+      } catch (error) {
+        alert("❌ " + error.message);
+      }
+    }
+
+    // Matrix hacker background
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0f0";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 33);
+  </script>
 </body>
 </html>

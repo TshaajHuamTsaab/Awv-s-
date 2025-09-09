@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人生的未来。</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #f4f4f4;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .book-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #00f260, #0575e6, #ff0080, #ff8c00);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientMove 6s ease infinite;
+      margin: 40px 0 20px 0;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .project {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      margin: 15px auto;
+      border-radius: 16px;
+      width: 80%;
+      max-width: 700px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease;
+    }
+    .project:hover { transform: scale(1.02); }
+    .button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      margin: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .play-btn {
+      background: #28a745;
+      color: white;
+      box-shadow: 0 4px 8px rgba(40,167,69,0.4);
+    }
+    .play-btn:hover { background: #218838; }
+    .stop-btn {
+      background: #dc3545;
+      color: white;
+      box-shadow: 0 4px 8px rgba(220,53,69,0.4);
+    }
+    .stop-btn:hover { background: #c82333; }
+    .text-container {
+      margin-top: 15px;
+      text-align: left;
+      line-height: 1.6;
+      color: #e0e0e0;
+      font-size: 1.1rem;
+    }
+    .sentence {
+      display: block;
+      margin-bottom: 6px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .sentence.active {
+      background: rgba(40,167,69,0.3);
+      color: #00ff99;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="book-title">人生的未来。</h1>
+
+  <!-- Project 1 -->
+  <div class="project" id="project1">
+    <h2>Project 1</h2>
+    <button class="button play-btn" onclick="playAudio(1)">▶ Play</button>
+    <button class="button stop-btn" onclick="stopAudio(1)">■ Stop</button>
+    <audio id="audio1" src="audio1.mp3"></audio>
+
+    <div class="text-container" id="text1">
+      <span class="sentence">第一句话 —— 人生需要目标。</span>
+      <span class="sentence">第二句话 —— 坚持才能成功。</span>
+      <span class="sentence">第三句话 —— 未来属于努力的人。</span>
+    </div>
+  </div>
+
+  <!-- Project 2: 未来必知与准备的10项深度知识 -->
+  <div class="project" id="project2">
+    <h2>Project 2 - 必准备的10项深度知识</h2>
+    <button class="button play-btn" onclick="playAudio(2)">▶ Play</button>
+    <button class="button stop-btn" onclick="stopAudio(2)">■ Stop</button>
+    <audio id="audio2" src="audio2.mp3"></audio>
+
+    <div class="text-container" id="text2">
+      <span class="sentence">1️⃣ 人工智能与自动化 —— 必知：AI 将深度嵌入生活、工作和社会决策中。</span>
+      <span class="sentence">它不仅能做重复性工作，还能辅助决策和创造内容。</span>
+      <span class="sentence">准备：学习 AI、机器学习知识，熟悉 Python、R、TensorFlow 等工具，理解算法的局限与伦理影响。</span>
+      <span class="sentence">2️⃣ 信息安全与隐私保护 —— 必知：个人数据将是最重要的资产。</span>
+      <span class="sentence">网络攻击和数据泄露会直接影响生活与财产安全。</span>
+      <span class="sentence">准备：掌握密码管理、多因素认证、加密技术，识别网络钓鱼与社交工程攻击。</span>
+      <span class="sentence">3️⃣ 数字货币与区块链 —— 必知：数字货币和区块链将改变支付与金融方式。</span>
+      <span class="sentence">准备：理解比特币、以太坊原理，掌握钱包管理、智能合约操作与风险意识。</span>
+      <span class="sentence">...（此处省略，后面保持同样格式继续写完10条）</span>
+    <span class="sentence">4️⃣ 可持续发展与生态意识 —— 必知：气候变化、资源枯竭影响社会稳定与生活质量。</span>
+    <span class="sentence">准备：学习可再生能源、绿色生活方式，参与低碳行动与环保创新。</span>
+
+    <span class="sentence">5️⃣ 心理健康与情绪管理 —— 必知：快节奏与信息过载影响心理健康。</span>
+    <span class="sentence">准备：学习冥想、认知行为疗法、情绪管理技巧，培养自我认知与同理心。</span>
+
+    <span class="sentence">6️⃣ 跨学科与终身学习 —— 必知：未来需要跨领域知识与持续学习能力。</span>
+    <span class="sentence">准备：培养跨学科能力（科技+艺术+商业+人文），掌握快速学习与信息筛选技巧。</span>
+
+    <span class="sentence">7️⃣ 全球化与多文化理解 —— 必知：跨国交流与文化冲突更频繁。</span>
+    <span class="sentence">准备：学习多语言，理解不同文化背景，提升跨文化沟通与谈判能力。</span>
+
+    <span class="sentence">8️⃣ 创新思维与创造力 —— 必知：AI 可替代重复任务，但创新与想象力是人类优势。</span>
+    <span class="sentence">准备：练习设计思维、问题重构、快速原型，提升创造力与解决问题能力。</span>
+
+    <span class="sentence">9️⃣ 健康科技与长寿科学 —— 必知：生物科技、基因编辑与健康监测将改变医疗与寿命。</span>
+    <span class="sentence">准备：了解基因检测、营养学、智能健康设备，培养科学健康管理习惯。</span>
+
+    <span class="sentence">🔟 社会责任与伦理决策 —— 必知：技术进步伴随社会责任与伦理挑战。</span>
+    <span class="sentence">准备：学习伦理学、法律与社会责任案例，培养批判性思维与负责任的决策能力。</span>   
+    </div>
+  </div>
+
+  <script>
+    let currentAudio = null;
+    let highlightTimers = [];
+
+    function playAudio(projectNum) {
+      stopAll();
+
+      const audio = document.getElementById("audio" + projectNum);
+      const container = document.getElementById("text" + projectNum);
+      const sentences = container.querySelectorAll(".sentence");
+
+      currentAudio = audio;
+      audio.play();
+
+      audio.onloadedmetadata = () => {
+        const duration = audio.duration;
+        const perSentence = duration / sentences.length;
+
+        sentences.forEach((s, i) => {
+          const timer = setTimeout(() => {
+            sentences.forEach(s => s.classList.remove("active"));
+            sentences[i].classList.add("active");
+          }, perSentence * i * 1000);
+          highlightTimers.push(timer);
+        });
+      };
+
+      audio.onended = () => stopAudio(projectNum);
+    }
+
+    function stopAudio(projectNum) {
+      const audio = document.getElementById("audio" + projectNum);
+      const container = document.getElementById("text" + projectNum);
+      const sentences = container.querySelectorAll(".sentence");
+
+      audio.pause();
+      audio.currentTime = 0;
+      sentences.forEach(s => s.classList.remove("active"));
+
+      highlightTimers.forEach(timer => clearTimeout(timer));
+      highlightTimers = [];
+      currentAudio = null;
+    }
+
+    function stopAll() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+      document.querySelectorAll(".sentence").forEach(s => s.classList.remove("active"));
+      highlightTimers.forEach(timer => clearTimeout(timer));
+      highlightTimers = [];
+    }
+  </script>
+
+</body>
+</html>

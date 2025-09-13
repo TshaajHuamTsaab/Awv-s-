@@ -6,6 +6,66 @@
   <title>Dark Hacker Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
+    .rainbow-header {
+      text-align: center;
+      margin-bottom: 12px;
+      /* optional: give a little backdrop glow to match hacker theme */
+      filter: drop-shadow(0 0 12px rgba(0,255,128,0.06));
+    }
+
+    /* 大字样式 */
+    .rainbow-header h1 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 32px;             /* 根据需要调整大小 */
+      letter-spacing: 1px;
+      font-weight: 700;
+
+      /* 关键：用线性渐变并裁剪到文字上 */
+      background: linear-gradient(90deg,
+        #ff3b3b,
+        #ff903b,
+        #ffd93b,
+        #7fff3b,
+        #3bffdf,
+        #3b8bff,
+        #8b3bff,
+        #ff3bcf,
+        #ff3b3b
+      );
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      /* 平滑移动渐变 */
+      animation: rainbowShift 6s linear infinite, neonFlicker 3s infinite;
+
+      /* optional subtle glow behind text for contrast on dark bg */
+      text-shadow:
+        0 0 6px rgba(255,255,255,0.03),
+        0 0 12px rgba(0,255,128,0.08),
+        0 0 24px rgba(0,255,128,0.06);
+    }
+
+    /* 渐变移动动画（左右流动） */
+    @keyframes rainbowShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 轻微闪烁/呼吸效果，增强黑科技感 */
+    @keyframes neonFlicker {
+      0%, 100% { opacity: 1; transform: translateY(0); }
+      45% { opacity: 0.95; transform: translateY(-1px); }
+      50% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 0.98; transform: translateY(-0.5px); }
+    }
+
+    /* 小屏幕缩小文字 */
+    @media (max-width: 420px) {
+      .rainbow-header h1 { font-size: 22px; }
+    }
     * {margin:0;padding:0;box-sizing:border-box;font-family:'Share Tech Mono', monospace;}
     body {
       height:100vh;
@@ -90,14 +150,20 @@
     <div class="logo">
       <img src="https://i.postimg.cc/DwzYYTWD/logo.webp" alt="Logo">
     </div>
+      
+    <!-- 登录区域 -->
+    <div id="loginSection">
+      <div class="rainbow-header">
+        <h1>Awvtsaab's 漆书</h1>
+      </div>
+      <h2>Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button class="btn btn-login" onclick="login()">登录</button>
+      <button class="btn btn-create" onclick="promptCreate()">创建新用户</button>
+    </div>
 
-    <h2>Login</h2>
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
-    <button class="btn btn-login" onclick="login()">登录</button>
-
-    <button class="btn btn-create" onclick="toggleCreate()">创建新用户</button>
-
+    <!-- 创建用户表单 -->
     <div id="createForm">
       <h2>新用户填写以下信息</h2>
       <input type="text" id="signupName" placeholder="姓名">
@@ -135,13 +201,15 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Toggle signup form
-    function toggleCreate() {
-      const form = document.getElementById("createForm");
-      form.style.display = form.style.display === "none" ? "block" : "none";
+    // 🔹 点击创建新用户按钮时
+    function promptCreate() {
+      if (confirm("⚡ 你确定要创建一个新用户吗？")) {
+        document.getElementById("loginSection").style.display = "none"; // 隐藏登录
+        document.getElementById("createForm").style.display = "block"; // 显示注册
+      }
     }
 
-    // Confirm before creating account
+    // 🔹 二次确认提交
     function confirmSignup() {
       const name = document.getElementById("signupName").value;
       const email = document.getElementById("signupEmail").value;
@@ -151,26 +219,26 @@
       const phone = document.getElementById("signupPhone").value;
 
       if (!name || !email || !password || !age || !gender || !phone) {
-        alert("⚠️ Please fill all fields!");
+        alert("⚠️ 请完整填写所有信息！");
         return;
       }
 
       const confirmText =
-        "Please confirm your details:\n\n" +
-        "👤 Name: " + name + "\n" +
-        "📧 Email: " + email + "\n" +
-        "🔑 Password: " + "*".repeat(password.length) + "\n" +
-        "🎂 Age: " + age + "\n" +
-        "⚧ Gender: " + gender + "\n" +
-        "📱 Phone: " + phone + "\n\n" +
-        "Do you want to create this account?";
+        "请确认以下信息:\n\n" +
+        "👤 姓名: " + name + "\n" +
+        "📧 邮箱: " + email + "\n" +
+        "🔑 密码: " + "*".repeat(password.length) + "\n" +
+        "🎂 年龄: " + age + "\n" +
+        "⚧ 性别: " + gender + "\n" +
+        "📱 手机: " + phone + "\n\n" +
+        "是否确认创建账号？";
 
       if (confirm(confirmText)) {
         signup(name, email, password, age, gender, phone);
       }
     }
 
-    // Signup with Firebase
+    // 🔹 Firebase 创建账号
     async function signup(name, email, password, age, gender, phone) {
       try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -181,27 +249,27 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert("✅ Account created successfully!");
-        window.location.href = "home.html"; // redirect
+        alert("✅ 账号创建成功！");
+        window.location.href = "home.html"; // 跳转主页
       } catch (error) {
         alert("❌ " + error.message);
       }
     }
 
-    // Login with Firebase
+    // 🔹 Firebase 登录
     async function login() {
       const email = document.getElementById("loginEmail").value;
       const password = document.getElementById("loginPassword").value;
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        alert("✅ Login successful!");
-        window.location.href = "home.html"; // redirect
+        alert("✅ 登录成功！");
+        window.location.href = "home.html";
       } catch (error) {
         alert("❌ " + error.message);
       }
     }
 
-    // Matrix hacker background
+    // 🔹 矩阵黑客背景
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;

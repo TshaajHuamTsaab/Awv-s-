@@ -1,82 +1,111 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>现实版水页增强版</title>
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:"Microsoft YaHei",sans-serif;}
-body{
-  background:url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif') center/cover no-repeat fixed;
-  position:relative;
-}
-.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:0;}
-#content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;padding:20px;}
-h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px rgba(0,0,0,0.7);}
-.line{margin:10px 0;font-size:1.5em;text-shadow:1px 1px 4px rgba(0,0,0,0.7);}
-#pageNumber{margin-top:10px;font-size:1em;color:#ccc;}
-#controls{position:absolute;top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:2;}
-button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius:8px;cursor:pointer;}
-#playBtn{background:green;color:white;}
-#stopBtn{background:red;color:white;}
-#stopBtn.paused{background:blue;}
-#increase,#decrease,#addPage,#addBook,#viewBook,#changeBg{background:#fff;color:#0b6fc2;}
-#bookList{position:absolute;bottom:10px;right:10px;display:flex;gap:8px;flex-wrap:wrap;z-index:2;}
-.bookIcon{width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid white;}
-/* 弹窗表单 */
-#formOverlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:3;}
-.formBox{background:#fff;padding:20px;border-radius:12px;min-width:300px;color:black;display:flex;flex-direction:column;gap:10px;}
-.formBox input, .formBox textarea{width:100%;padding:6px;font-size:1em;border-radius:4px;border:1px solid #ccc;}
-.formBox button{background:#0b6fc2;color:white;padding:8px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}
-/* 宇宙星星和雪 */
-#stars, #snow{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
-.star{position:absolute;background:white;border-radius:50%;opacity:0.8;}
-.snowflake{position:absolute;color:white;font-size:1em;user-select:none;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:"Microsoft YaHei",sans-serif;}
+  body{
+    background:url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif') center/cover no-repeat fixed;
+    position:relative;
+  }
+
+  /* layering: overlay (0) < stars/snow (1) < content (2) < controls/search (3) */
+  .overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:0;}
+
+  #content{
+    position:relative;z-index:2;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:white;padding:20px;
+  }
+  h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px rgba(0,0,0,0.7);}
+  .line{margin:10px 0;font-size:1.5em;text-shadow:1px 1px 4px rgba(0,0,0,0.7);}
+  #pageNumber{margin-top:10px;font-size:1em;color:#ccc;}
+
+  #controls{
+    position:absolute;top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:3;width:100%;
+  }
+  button{padding:8px 16px;font-weight:bold;font-size:1em;border:none;border-radius:8px;cursor:pointer;}
+  #playBtn{background:green;color:white;}
+  #stopBtn{background:red;color:white;}
+  #stopBtn.paused{background:blue;}
+  #increase,#decrease,#changeBg{background:#fff;color:#0b6fc2;}
+
+  /* Page-number search */
+  #search-bar{position:absolute;top:70px;width:100%;text-align:center;z-index:3;}
+  #search-input{padding:6px 12px;border-radius:6px;border:1px solid #ccc;width:120px;}
+  #search-btn{padding:6px 12px;border-radius:6px;border:none;background:#0b6fc2;color:white;font-weight:bold;cursor:pointer;}
+
+  /* canvases for effects */
+  #stars,#snow{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
 </style>
 </head>
-<body>    
-<div class="overlay"></div>
+<body>
+
+<!-- Controls -->
 <div id="controls">
   <button id="playBtn">Play</button>
   <button id="stopBtn">Stop</button>
   <button id="increase">A+</button>
   <button id="decrease">A-</button>
-  <button id="addPage">添加页面</button>
-  <button id="addBook">添加书籍</button>
-  <button id="viewBook">查看书籍</button>
   <button id="changeBg">切换背景</button>
-  <button id="logout-btn">注销</button>
+  <button id="logout-btn" style="background-color:red;color:white;border:none;padding:10px 20px;border-radius:6px;">注销</button>
 </div>
 
+<!-- Page-number search -->
+<div id="search-bar">
+  <input type="number" id="search-input" placeholder="输入页码..." min="1"/>
+  <button id="search-btn">跳转</button>
+</div>
+
+<!-- Content -->
 <div id="content">
   <h1 id="title"></h1>
   <div id="lines"></div>
   <div id="pageNumber"></div>
 </div>
 
-<!-- 去掉箭头导航 -->
-
-<div id="bookList"></div>
-
+<!-- Effects above overlay -->
 <canvas id="stars"></canvas>
 <canvas id="snow"></canvas>
-
-<!-- 弹窗表单 -->
-<div id="formOverlay">
-  <div class="formBox" id="formBox">
-    <div id="formTitle"></div>
-    <input type="text" id="formInput1" placeholder="">
-    <input type="text" id="formInput2" placeholder="">
-    <input type="text" id="formInput3" placeholder="">
-    <textarea id="formTextarea" placeholder="" style="display:none;"></textarea>
-    <button id="formSubmit">提交</button>
-    <button id="formCancel">取消</button>
-  </div>
-</div>
+<div class="overlay"></div>
 
 <script>
-// ---------- 页面与书籍数据 ----------
+/* ---------------- Data ---------------- */
 let pages = [
+  {
+    title: "格局胜过金钱",
+    lines: [
+      "贫困最可怕的，不是物质的贫乏，",
+      "而是陷入贫困的思维和认知。",
+      "",
+      "物质上穷只是穷一时，",
+      "要是思维和认知上穷，那就穷三代了。",
+      "",
+      "要知道给下一代留的不是巨额财富，",
+      "只要留 格局、眼界、思维 就够了，",
+      "因为这就是最宝贵的财富。"
+    ],
+  },
+  {
+    title: "学习的重要性",
+    lines: [
+      "知识改变命运，",
+      "学习开拓眼界，",
+      "坚持每天进步一点点，",
+      "长久累积就是质的飞跃。"
+    ]
+  },
+  {
+    title: "坚持的力量",
+    lines: [
+      "生活不是一场短跑，",
+      "而是一场需要耐力的马拉松。",
+      "只有坚持到最后的人，",
+      "才能看到真正的风景。"
+    ]
+  },
   {title:"社会处事",
     lines:[
       "在社会混，最值钱的不是钱，而是信用。",
@@ -573,86 +602,312 @@ let pages = [
     "人生才能走得更远。"
   ],
   deletable: false
-}
+},
+{
+  title: "三件事优先排序",
+  lines: [
+    "面对紧急工作任务，要先处理，避免压力和损失。",
+    "学习新技能虽不紧急，但长期收益最大，应安排在高效时间段。",
+    "回朋友电话重要但可延后，确保完成关键任务后再社交。",
+    "",
+    "原则：先紧急，后重要，再处理可延后事务，让生活高效清醒。",
+    "",
+    "核心理解：",
+    "清醒智慧就是学会区分“紧急与重要”，把时间花在最有价值的事情上。"
+  ],
+  deletable: false
+},
+{
+  title: "金钱使用决策",
+  lines: [
+    "投资自己学习新技能，是最值得的长期选择。",
+    "买电子设备或娱乐消费，只适合在满足长期目标后。",
+    "花钱前先分析收益：短期满足 vs 长期成长。",
+    "",
+    "原则：理性消费，把资源放在提升能力和智慧的地方。",
+    "",
+    "核心理解：",
+    "长期收益优先比短期享受更能让生活智慧积累。"
+  ],
+  deletable: false
+},
+{
+  title: "健康生活选择",
+  lines: [
+    "早上醒来，健康第一，保证身体和精神清醒。",
+    "锻炼可以提高精力和注意力，比多睡一小时更有长期收益。",
+    "刷手机虽方便，但消耗注意力，应控制时间。",
+    "",
+    "原则：权衡短期舒适与长期健康，把精力放在对自己有益的事情上。",
+    "",
+    "核心理解：",
+    "健康是高效生活的基础，身体和精神清醒才能理智做决策。"
+  ],
+  deletable: false
+},
+{
+  title: "时间管理挑战",
+  lines: [
+    "空闲时间应先处理紧急工作，提高效率。",
+    "学习和自我提升放在专注时间，积累长期价值。",
+    "放松娱乐可调节情绪，但不应占用核心学习和工作时间。",
+    "",
+    "原则：分配时间时，先保证基础需求，再安排高价值活动。",
+    "",
+    "核心理解：",
+    "时间是最宝贵的资源，高效安排才能清醒成长。"
+  ],
+  deletable: false
+},
+{
+  title: "社交智慧",
+  lines: [
+    "参加社交活动前先评估任务重要性。",
+    "如果工作或学习紧急，应优先完成核心任务。",
+    "可折中处理：先完成部分任务，再去社交，兼顾效率和关系。",
+    "",
+    "原则：学会平衡责任与人际关系，理智选择优先级。",
+    "",
+    "核心理解：",
+    "社交智慧在于兼顾责任和关系，让生活更平衡。"
+  ],
+  deletable: false
+},
+{
+  title: "消息真假判断",
+  lines: [
+    "遇到新闻或信息，不要盲目转发。",
+    "先查来源、核实真伪，再决定如何处理。",
+    "不理会不可靠消息，是保护自己和他人的方法。",
+    "",
+    "原则：培养批判性思维和信息甄别能力，避免被虚假信息误导。",
+    "",
+    "核心理解：",
+    "清醒智慧源于正确判断信息的能力，避免被虚假或噪声干扰。"
+  ],
+  deletable: false
+},
+{
+  title: "紧急问题应对",
+  lines: [
+    "遇到突发状况，先分析可行方案，避免盲目行动。",
+    "如果有替代方案，可临时应对问题，同时保证工作进度。",
+    "立即去修或等待修理，应考虑效率和风险。",
+    "",
+    "原则：培养应变能力，用最安全高效的方法解决问题。",
+    "",
+    "核心理解：",
+    "生活中总有意外，理性决策比冲动行动更有价值。"
+  ],
+  deletable: false
+},
+{
+  title: "家庭理财选择",
+  lines: [
+    "优先满足生活必需支出，如房租、水电。",
+    "投资孩子教育或自身成长是长期高价值支出。",
+    "投资理财需在确保基本需求后考虑。",
+    "",
+    "原则：用有限资源优先保障生活，再分配给成长和增值事项。",
+    "",
+    "核心理解：",
+    "理智理财 = 安全 + 成长，避免冲动消费。"
+  ],
+  deletable: false
+},
+{
+  title: "健康饮食选择",
+  lines: [
+    "选择健康饮食，即便稍贵或费时，对长期身体最有益。",
+    "快餐或省事方案虽方便，但长期不利健康。",
+    "不吃可能影响工作效率和身体状态。",
+    "",
+    "原则：短期方便不能替代长期健康，生活智慧体现于日常选择。",
+    "",
+    "核心理解：",
+    "健康选择是智慧生活的日常体现，长期收益大于短期便利。"
+  ],
+  deletable: false
+},
+{
+  title: "反思与成长",
+  lines: [
+    "对昨天的错误进行分析，找出原因。",
+    "制定具体改进措施，防止重复犯错。",
+    "总结经验，将反思变为实际行动。",
+    "",
+    "原则：自我反思和行动是清醒智慧的核心能力。",
+    "",
+    "核心理解：",
+    "从错误中学习，让每次经历都成为成长的阶梯。"
+  ],
+  deletable: false
+},
+{
+  title: "整体总结",
+  lines: [
+    "先紧急，后重要 → 管理好时间和精力。",
+    "长期价值优先 → 投资自己和成长。",
+    "健康是基础 → 身体和精神清醒，决策更理智。",
+    "理性分析与批判思维 → 信息判断、选择决策都清楚。",
+    "平衡生活各方面 → 工作、学习、社交、娱乐协调。",
+    "反思与行动结合 → 错误是智慧成长的必经路。",
+    "",
+    "💡 应用方法：",
+    "每天用“紧急重要原则”安排生活。",
+    "遇到选择问题，用“长期价值 + 健康 + 信息分析 + 平衡原则”做决策。",
+    "每天反思行动，找出提升智慧的机会。"
+  ],
+  deletable: false
+},
+{
+    title: "社会必知知识 · 页1",
+    lines: [
+      "1. 有合同才算数，光说不管用 —— 没写下来，出了事没人认账。",
+      "2. 发票就是你的护身符 —— 没票子，坏了东西你就白掏钱。",
+      "3. 借钱分期要算利息 —— 别信什么“零利率”，多半换个名字坑你钱。",
+      "4. 别乱给个人信息 —— 什么验证码、银行卡号，一问就是骗子。",
+      "5. 二手买卖记得留截图 —— 一旦闹纠纷，有图才有凭据。"
+    ],
+    deletable: false
+  },
+  {
+    title: "社会必知知识 · 页2",
+    lines: [
+      "6. 高回报都是陷阱 —— 谁敢给你高利息，还“保本”？百分百是坑。",
+      "7. 医保不是万能的 —— 不同医院、不同地方报销比例差别大。",
+      "8. 社保不能断 —— 一断，买房、落户、贷款全麻烦。",
+      "9. 加班有加班费 —— 平时1.5倍，周末2倍，节日3倍，不给就是违法。",
+      "10. 裸辞要想清楚 —— 存款不够，辞职就等着吃土。"
+    ],
+    deletable: false
+  },
+  {
+    title: "社会必知知识 · 页3",
+    lines: [
+      "11. 租房先拍照留底 —— 退房时不然中介随便扣押金。",
+      "12. 酒桌要识趣 —— 不会喝能说不会，但态度要放对。",
+      "13. 熟人介绍不一定靠谱 —— 朋友介绍的坑，往往更深。",
+      "14. 免费活动背后常带套路 —— 体检、讲座最后都想卖你东西。",
+      "15. 出车祸先报警 —— 别急着私了，不然后面保险赔不了。"
+    ],
+    deletable: false
+  },
+  {
+    title: "社会必知知识 · 页4",
+    lines: [
+      "16. 炒股炒币风险大 —— 钱亏起来比赚还快。",
+      "17. 法律问题别瞎扛 —— 该找律师时就找，花钱省大事。",
+      "18. 快递要先验货再签收 —— 贵重物品尤其如此，不然说不清。",
+      "19. 网络传言别全信 —— 截图、段子多是假的，要看官方消息。"
+    ],
+    deletable: false
+  },
+  {
+    title: "社会必知知识 · 页5",
+    lines: [
+      "20. 送礼随心意，别逞强 —— 礼金随份子，量力而行就好。",
+      "21. 一定要留点现金在手 —— 天有不测风云，兜里没钱最难熬。"
+    ],
+    deletable: false
+  },
 ];
 
-  
-let books = [];
-let currentPage=0, fontSize=1.5, reading=false, lineIndex=0;
+let currentPage = 0;
+let fontSize = 1.5;
+let reading = false;
+let lineIndex = 0;
 
-const titleEl=document.getElementById("title");
-const linesEl=document.getElementById("lines");
-const pageNumberEl=document.getElementById("pageNumber");
+const titleEl = document.getElementById("title");
+const linesEl = document.getElementById("lines");
+const pageNumberEl = document.getElementById("pageNumber");
 
-// 永久保存
-function saveData(){localStorage.setItem("customPages", JSON.stringify(pages));localStorage.setItem("customBooks", JSON.stringify(books));}
-function loadData(){
-  const savedPages = JSON.parse(localStorage.getItem("customPages"));
-  const savedBooks = JSON.parse(localStorage.getItem("customBooks"));
-  if(savedPages){ pages = savedPages; }
-  if(savedBooks){ books = savedBooks; renderBooks(); }
-}
-loadData();
-
-// 渲染
+/* ---------------- Render ---------------- */
 function renderPage(){
-  titleEl.textContent = pages[currentPage].title;
+  if (currentPage < 0) currentPage = 0;
+  if (currentPage >= pages.length) currentPage = pages.length - 1;
+
+  const page = pages[currentPage];
+  titleEl.textContent = page.title;
   linesEl.innerHTML = "";
-  pages[currentPage].lines.forEach(line => {
+
+  page.lines.forEach(line=>{
     const div = document.createElement("div");
     div.className = "line";
     div.style.fontSize = fontSize + "em";
+    // keep per-char spans to support TTS highlighting
     div.innerHTML = line.split("").map(c => `<span>${c}</span>`).join("");
     linesEl.appendChild(div);
   });
+
   pageNumberEl.textContent = `第 ${currentPage+1} 页 / 共 ${pages.length} 页`;
 }
 renderPage();
 
-// 翻页函数
-function prevPage(){if(currentPage>0){currentPage--; renderPage(); stopReading();}}
-function nextPage(){if(currentPage<pages.length-1){currentPage++; renderPage(); stopReading();}}
+/* ---------------- Paging (swipe & mouse drag) ---------------- */
+function prevPage(){ if(currentPage>0){ currentPage--; renderPage(); stopReading(); } }
+function nextPage(){ if(currentPage<pages.length-1){ currentPage++; renderPage(); stopReading(); } }
 
-// 手指/鼠标滑动切换
-let startX=0, endX=0;
-document.addEventListener("touchstart",e=>{startX=e.touches[0].clientX;});
+let startX=0, endX=0, mouseDown=false;
+document.addEventListener("touchstart",e=>{ startX = e.touches[0].clientX; });
 document.addEventListener("touchend",e=>{
-  endX=e.changedTouches[0].clientX;
-  if(startX-endX>50){ nextPage(); } // 向左滑 → 下一页
-  else if(endX-startX>50){ prevPage(); } // 向右滑 → 上一页
+  endX = e.changedTouches[0].clientX;
+  if (startX - endX > 50) nextPage();
+  else if (endX - startX > 50) prevPage();
 });
-// 鼠标拖动也能翻页
-let mouseDown=false;
-document.addEventListener("mousedown",e=>{mouseDown=true; startX=e.clientX;});
+document.addEventListener("mousedown",e=>{ mouseDown=true; startX=e.clientX; });
 document.addEventListener("mouseup",e=>{
-  if(!mouseDown)return;
-  mouseDown=false;
-  endX=e.clientX;
-  if(startX-endX>50){ nextPage(); }
-  else if(endX-startX>50){ prevPage(); }
+  if(!mouseDown) return;
+  mouseDown=false; endX=e.clientX;
+  if (startX - endX > 50) nextPage();
+  else if (endX - startX > 50) prevPage();
 });
 
-// ---------- 字体 ----------
-document.getElementById("increase").onclick=()=>{fontSize+=0.2; renderPage();}
-document.getElementById("decrease").onclick=()=>{fontSize=Math.max(0.8,fontSize-0.2); renderPage();}
+/* ---------------- Page-number search ---------------- */
+const searchInput = document.getElementById("search-input");
+document.getElementById("search-btn").onclick = ()=>{
+  const n = parseInt(searchInput.value, 10);
+  if (!isNaN(n) && n>=1 && n<=pages.length){
+    currentPage = n-1;
+    renderPage();
+    stopReading();
+  } else {
+    alert("❌ 没有这个页码");
+  }
+};
+// Enter key to jump
+searchInput.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter") document.getElementById("search-btn").click();
+});
 
-// ---------- 朗读 ----------
+/* ---------------- Font size ---------------- */
+document.getElementById("increase").onclick = ()=>{ fontSize += 0.2; renderPage(); };
+document.getElementById("decrease").onclick = ()=>{ fontSize = Math.max(0.8, fontSize-0.2); renderPage(); };
+
+/* ---------------- TTS ---------------- */
 let synth = window.speechSynthesis;
 let utterance;
 function speakLine(){
-  if(!reading || lineIndex>=pages[currentPage].lines.length){stopReading();return;}
+  if(!reading || lineIndex >= pages[currentPage].lines.length){ stopReading(); return; }
+
   const lineDiv = linesEl.children[lineIndex];
   const spans = Array.from(lineDiv.querySelectorAll("span"));
   utterance = new SpeechSynthesisUtterance(pages[currentPage].lines[lineIndex]);
-  utterance.lang="zh-CN"; utterance.rate=0.9; utterance.pitch=1;
-  utterance.onboundary = (event)=>{
-    if(event.charIndex!==undefined){
+  utterance.lang = "zh-CN";
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.onboundary = (ev)=>{
+    if (ev.charIndex!==undefined){
       spans.forEach(s=>s.style.color="white");
-      let idx=Math.min(event.charIndex, spans.length-1);
-      spans[idx].style.color="red";
+      const idx = Math.min(ev.charIndex, spans.length-1);
+      spans[idx].style.color = "red";
     }
-  }
-  utterance.onend = ()=>{spans.forEach(s=>s.style.color="white"); lineIndex++; speakLine();}
+  };
+  utterance.onend = ()=>{
+    spans.forEach(s=>s.style.color="white");
+    lineIndex++;
+    speakLine();
+  };
   synth.speak(utterance);
 }
 function stopReading(){
@@ -660,70 +915,92 @@ function stopReading(){
   document.getElementById("stopBtn").classList.remove("paused");
   Array.from(document.querySelectorAll(".line span")).forEach(s=>s.style.color="white");
 }
-document.getElementById("playBtn").onclick=()=>{if(!reading){reading=true; lineIndex=0; speakLine();}};
-document.getElementById("stopBtn").onclick=()=>{if(reading){synth.cancel();reading=false;document.getElementById("stopBtn").classList.add("paused");}else{reading=true;speakLine();document.getElementById("stopBtn").classList.remove("paused");}}
-
-// ---------- 添加页面/书籍 ----------
-const formOverlay=document.getElementById("formOverlay");
-const input1=document.getElementById("formInput1");
-const input2=document.getElementById("formInput2");
-const input3=document.getElementById("formInput3");
-const textarea=document.getElementById("formTextarea");
-const submitBtn=document.getElementById("formSubmit");
-const cancelBtn=document.getElementById("formCancel");
-const formTitle=document.getElementById("formTitle");
-const bookList=document.getElementById("bookList");
-let currentForm="";
-function showForm(type){
-  currentForm=type;
-  formOverlay.style.display="flex";
-  textarea.style.display="none"; input1.style.display="none"; input2.style.display="none"; input3.style.display="none";
-  if(type==="page"){formTitle.textContent="添加页面";input1.style.display="block";input1.placeholder="页面标题";textarea.style.display="block";textarea.placeholder="页面内容，每行或用逗号分隔";}
-  else if(type==="book"){formTitle.textContent="添加书籍";input1.style.display="block";input1.placeholder="书籍标题";input2.style.display="block";input2.placeholder="书籍链接";input3.style.display="block";input3.placeholder="封面URL";}
-  else if(type==="viewBook"){alert("书籍列表：\n"+books.map(b=>b.title).join("\n"));formOverlay.style.display="none";}
-}
-cancelBtn.onclick=()=>{formOverlay.style.display="none";}
-submitBtn.onclick=()=>{
-  if(currentForm==="page"){const title=input1.value.trim();const linesArr=textarea.value.split(/\n|,/).map(s=>s.trim()).filter(s=>s);if(title&&linesArr.length>0){pages.push({title,lines:linesArr,deletable:true});currentPage=pages.length-1;saveData();renderPage();alert("页面已添加！");}}
-  else if(currentForm==="book"){const title=input1.value.trim();const url=input2.value.trim();const img=input3.value.trim();if(title&&url&&img){books.push({title,url,img});saveData();renderBooks();alert("书籍已添加！");}}
-  formOverlay.style.display="none"; input1.value=""; input2.value=""; input3.value=""; textarea.value="";
-}
-function renderBooks(){bookList.innerHTML="";books.forEach(b=>{const img=document.createElement("img");img.src=b.img;img.title=b.title;img.className="bookIcon";img.onclick=()=>{window.open(b.url,"_blank");};bookList.appendChild(img);});}
-document.getElementById("addPage").onclick=()=>{showForm("page");}
-document.getElementById("addBook").onclick=()=>{showForm("book");}
-document.getElementById("viewBook").onclick=()=>{showForm("viewBook");}
-
-// ---------- 背景切换 ----------
-let bgIndex=0;
-const backgrounds=[
-  'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif',
-  'black', 'linear-gradient(to bottom,#001, #000)'
-];
-document.getElementById("changeBg").onclick=()=>{
-  bgIndex=(bgIndex+1)%backgrounds.length;
-  document.body.style.background=backgrounds[bgIndex];
-  if(bgIndex===1){initStars();}else{clearStars();}
-  if(bgIndex===2){initSnow();}else{clearSnow();}
-}
-
-// 星星
-const starCanvas=document.getElementById("stars");const starCtx=starCanvas.getContext("2d");let starsArray=[];
-function initStars(){starCanvas.width=window.innerWidth;starCanvas.height=window.innerHeight;starsArray=[];for(let i=0;i<150;i++){starsArray.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*2+1,opacity:Math.random()});}requestAnimationFrame(drawStars);}
-function drawStars(){starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);starsArray.forEach(s=>{starCtx.beginPath();starCtx.arc(s.x,s.y,s.r,0,2*Math.PI);starCtx.fillStyle=`rgba(255,255,255,${s.opacity})`;starCtx.fill();s.opacity+=(Math.random()-0.5)*0.05;if(s.opacity>1)s.opacity=1;if(s.opacity<0)s.opacity=0;});if(bgIndex===1)requestAnimationFrame(drawStars);}
-function clearStars(){starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);}
-
-// 雪
-const snowCanvas=document.getElementById("snow");const snowCtx=snowCanvas.getContext("2d");let snowArray=[];
-function initSnow(){snowCanvas.width=window.innerWidth;snowCanvas.height=window.innerHeight;snowArray=[];for(let i=0;i<200;i++){snowArray.push({x:Math.random()*snowCanvas.width,y:Math.random()*snowCanvas.height,r:Math.random()*3+1,speed:Math.random()*1+0.5});}requestAnimationFrame(drawSnow);}
-function drawSnow(){snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);snowArray.forEach(s=>{snowCtx.beginPath();snowCtx.arc(s.x,s.y,s.r,0,Math.PI*2);snowCtx.fillStyle="white";snowCtx.fill();s.y+=s.speed;if(s.y>snowCanvas.height)s.y=0;});if(bgIndex===2)requestAnimationFrame(drawSnow);}
-function clearSnow(){snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);}
-
-window.onresize=()=>{if(bgIndex===1)initStars();if(bgIndex===2)initSnow();}
-</script>
-<script>
-document.getElementById('logout-btn').onclick = function() {
-    window.location.href = "index.html";
+document.getElementById("playBtn").onclick = ()=>{ if(!reading){ reading=true; lineIndex=0; speakLine(); } };
+document.getElementById("stopBtn").onclick = ()=>{
+  if(reading){ synth.cancel(); reading=false; document.getElementById("stopBtn").classList.add("paused"); }
+  else { reading=true; speakLine(); document.getElementById("stopBtn").classList.remove("paused"); }
 };
+
+/* ---------------- Background switch + effects ---------------- */
+let bgIndex = 0;
+const backgrounds = [
+  'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzdwYXd1dGcxbHloc3UwYjM3a2lpdnVhbHA5bnJrNWVpenc5dmltMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FUESbiqyQcJBcwFefb/giphy.gif', // 0: GIF (no effects)
+  'black',                                  // 1: stars
+  'linear-gradient(to bottom,#001,#000)'    // 2: snow
+];
+
+document.getElementById("changeBg").onclick = ()=>{
+  bgIndex = (bgIndex + 1) % backgrounds.length;
+  document.body.style.background = backgrounds[bgIndex];
+
+  if (bgIndex === 1){ initStars(); clearSnow(); }
+  else if (bgIndex === 2){ initSnow(); clearStars(); }
+  else { clearStars(); clearSnow(); }
+};
+
+/* Stars */
+const starCanvas = document.getElementById("stars");
+const starCtx = starCanvas.getContext("2d");
+let starsArray = [];
+function initStars(){
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  starsArray = [];
+  for(let i=0;i<150;i++){
+    starsArray.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*2+1,opacity:Math.random()});
+  }
+  requestAnimationFrame(drawStars);
+}
+function drawStars(){
+  starCtx.clearRect(0,0,starCanvas.width,starCanvas.height);
+  starsArray.forEach(s=>{
+    starCtx.beginPath();
+    starCtx.arc(s.x,s.y,s.r,0,2*Math.PI);
+    starCtx.fillStyle = `rgba(255,255,255,${s.opacity})`;
+    starCtx.fill();
+    s.opacity += (Math.random()-0.5)*0.05;
+    if(s.opacity>1) s.opacity=1;
+    if(s.opacity<0) s.opacity=0;
+  });
+  if (bgIndex === 1) requestAnimationFrame(drawStars);
+}
+function clearStars(){ starCtx.clearRect(0,0,starCanvas.width,starCanvas.height); }
+
+/* Snow */
+const snowCanvas = document.getElementById("snow");
+const snowCtx = snowCanvas.getContext("2d");
+let snowArray = [];
+function initSnow(){
+  snowCanvas.width = window.innerWidth;
+  snowCanvas.height = window.innerHeight;
+  snowArray = [];
+  for(let i=0;i<200;i++){
+    snowArray.push({x:Math.random()*snowCanvas.width,y:Math.random()*snowCanvas.height,r:Math.random()*3+1,speed:Math.random()*1+0.5});
+  }
+  requestAnimationFrame(drawSnow);
+}
+function drawSnow(){
+  snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);
+  snowArray.forEach(s=>{
+    snowCtx.beginPath();
+    snowCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    snowCtx.fillStyle="white";
+    snowCtx.fill();
+    s.y += s.speed;
+    if(s.y>snowCanvas.height) s.y = 0;
+  });
+  if (bgIndex === 2) requestAnimationFrame(drawSnow);
+}
+function clearSnow(){ snowCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height); }
+
+/* Resize */
+window.onresize = ()=>{
+  if (bgIndex===1) initStars();
+  if (bgIndex===2) initSnow();
+};
+
+/* Logout */
+document.getElementById('logout-btn').onclick = ()=>{ window.location.href = "login.html"; };
 </script>
 </body>
 </html>
